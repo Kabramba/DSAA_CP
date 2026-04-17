@@ -1,0 +1,203 @@
+/* ── Root palette ── */
+.root {
+    -fx-base: #1a1b26;
+    -fx-background: #1a1b26;
+    -fx-control-inner-background: #24283b;
+    -fx-accent: #7aa2f7;
+    -fx-focus-color: #7aa2f7;
+    -fx-faint-focus-color: transparent;
+    -fx-font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: #c0caf5;
+}
+
+/* ── Top header bar ── */
+.header-bar {
+    -fx-background-color: #16161e;
+    -fx-padding: 12 20;
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+    -fx-border-color: transparent transparent #292e42 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.app-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #c0caf5;
+    -fx-padding: 0 12 0 0;
+}
+
+/* ── Control chips (buttons, combos) ── */
+.control-chip {
+    -fx-background-color: #292e42;
+    -fx-text-fill: #a9b1d6;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #3b4261;
+    -fx-border-width: 1;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+}
+
+.control-chip:hover {
+    -fx-background-color: #33384d;
+    -fx-border-color: #7aa2f7;
+}
+
+.control-chip:focused {
+    -fx-border-color: #7aa2f7;
+}
+
+/* ── ComboBox ── */
+.combo-box .list-cell {
+    -fx-text-fill: #a9b1d6;
+    -fx-background-color: transparent;
+    -fx-padding: 4 8;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #24283b;
+    -fx-border-color: #3b4261;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 12, 0, 0, 4);
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #a9b1d6;
+    -fx-padding: 6 12;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #292e42;
+}
+
+.combo-box-popup .list-view .list-cell:selected {
+    -fx-background-color: #3b4261;
+    -fx-text-fill: #7aa2f7;
+}
+
+/* ── Play button accent ── */
+.play-btn {
+    -fx-background-color: #7aa2f7;
+    -fx-text-fill: #1a1b26;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 6 18;
+    -fx-cursor: hand;
+}
+
+.play-btn:hover {
+    -fx-background-color: #89b4fa;
+}
+
+.play-btn:pressed {
+    -fx-background-color: #5d7ec7;
+}
+
+/* ── Slider ── */
+.slider .track {
+    -fx-background-color: #292e42;
+    -fx-background-radius: 4;
+    -fx-pref-height: 6;
+}
+
+.slider .thumb {
+    -fx-background-color: #7aa2f7;
+    -fx-background-radius: 8;
+    -fx-pref-width: 16;
+    -fx-pref-height: 16;
+    -fx-effect: dropshadow(gaussian, rgba(122,162,247,0.4), 6, 0, 0, 0);
+}
+
+.slider .colored-track {
+    -fx-background-color: #7aa2f7;
+    -fx-background-radius: 4;
+}
+
+/* ── Viewport container ── */
+.viewport-container {
+    -fx-background-color: #1a1b26;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+}
+
+.viewport-card {
+    -fx-background-color: #16161e;
+    -fx-background-radius: 12;
+    -fx-border-color: #292e42;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+    -fx-padding: 0;
+}
+
+.viewport-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #565f89;
+    -fx-padding: 10 14 6 14;
+    -fx-letter-spacing: 0.8;
+}
+
+/* ── Status bar ── */
+.status-bar {
+    -fx-background-color: #16161e;
+    -fx-padding: 8 20;
+    -fx-border-color: #292e42 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-spacing: 20;
+    -fx-alignment: center-left;
+}
+
+.status-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #565f89;
+}
+
+.status-value {
+    -fx-font-size: 11px;
+    -fx-text-fill: #a9b1d6;
+    -fx-font-weight: bold;
+}
+
+/* ── Separator styling ── */
+.header-separator {
+    -fx-background-color: #3b4261;
+    -fx-pref-width: 1;
+    -fx-max-width: 1;
+    -fx-pref-height: 20;
+}
+
+/* ── Speed label ── */
+.speed-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #565f89;
+    -fx-padding: 0 4 0 0;
+}
+
+/* ── Scroll bars (hide for cleaner look) ── */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #3b4261;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}

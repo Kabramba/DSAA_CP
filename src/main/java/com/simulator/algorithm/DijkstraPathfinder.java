@@ -7,26 +7,31 @@ import com.simulator.model.PathCursor;
 
 import java.util.*;
 
-public class BFSPathfinder implements PathfindingAlgorithm {
-    private final Queue<GraphCell> queue = new LinkedList<>();
-    private final Set<GraphCell> visited = new HashSet<>();
+public class DijkstraPathfinder implements PathfindingAlgorithm {
+    private final PriorityQueue<GraphCell> frontier;
+    private final Map<GraphCell, Double> costSoFar = new HashMap<>();
     private final Map<GraphCell, GraphCell> parentMap = new HashMap<>();
     private boolean initialized = false;
     private Path resultPath = null;
+
+    public DijkstraPathfinder() {
+        this.frontier = new PriorityQueue<>(Comparator.comparingDouble(
+                cell -> costSoFar.getOrDefault(cell, Double.MAX_VALUE)));
+    }
 
     @Override
     public boolean executeNextStep(PathCursor cursor, GraphMaze interpretMap) {
         if (!initialized) {
             GraphCell start = cursor.getCurrentCell();
-            queue.add(start);
-            visited.add(start);
+            costSoFar.put(start, 0.0);
             parentMap.put(start, null);
+            frontier.add(start);
             initialized = true;
         }
 
-        if (queue.isEmpty()) return true;
+        if (frontier.isEmpty()) return true;
 
-        GraphCell current = queue.poll();
+        GraphCell current = frontier.poll();
         cursor.moveToVirtualNode(current);
 
         if (current == cursor.getTargetCell()) {
@@ -34,11 +39,16 @@ public class BFSPathfinder implements PathfindingAlgorithm {
             return true;
         }
 
+        double currentCost = costSoFar.get(current);
+
         for (GraphCell neighbor : getAccessibleNeighbors(current)) {
-            if (!visited.contains(neighbor)) {
-                visited.add(neighbor);
+            double newCost = currentCost + 1.0;
+
+            if (newCost < costSoFar.getOrDefault(neighbor, Double.MAX_VALUE)) {
+                costSoFar.put(neighbor, newCost);
                 parentMap.put(neighbor, current);
-                queue.add(neighbor);
+                frontier.remove(neighbor);
+                frontier.add(neighbor);
             }
         }
 

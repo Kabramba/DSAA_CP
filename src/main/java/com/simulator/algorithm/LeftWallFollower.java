@@ -3,7 +3,7 @@ package com.simulator.algorithm;
 import com.simulator.model.Mouse;
 
 public class LeftWallFollower implements ExplorationAlgorithm {
-    // 0: North, 1: East, 2: South, 3: West
+// 0: North, 1: East, 2: South, 3: West
     private int currentHeading = 0;
 
     @Override
