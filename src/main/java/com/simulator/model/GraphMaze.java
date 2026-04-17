@@ -57,6 +57,37 @@ public class GraphMaze {
         top.setSouthWall(true);
     }
 
+    public int getLogicalWidth() {
+        if (allNodes.isEmpty()) return 0;
+        return allNodes.stream().mapToInt(GraphCell::getX).max().getAsInt() + 1;
+    }
+
+    /**
+     * Computes the maximum vertical bound of the topological graph.
+     */
+    public int getLogicalHeight() {
+        if (allNodes.isEmpty()) return 0;
+        return allNodes.stream().mapToInt(GraphCell::getY).max().getAsInt() + 1;
+    }
+    public void addNode(GraphCell node) {
+        if (!allNodes.contains(node)) {
+            allNodes.add(node);
+        }
+    }
+
+    /**
+     * Spatial query to find if a node at a specific coordinate already exists in memory.
+     * Prevents overlapping graph allocations during loop-closures.
+     */
+    public GraphCell getNodeAt(int x, int y) {
+        for (GraphCell cell : allNodes) {
+            if (cell.getX() == x && cell.getY() == y) {
+                return cell;
+            }
+        }
+        return null;
+    }
+
     public List<GraphCell> getAllNodes() { return allNodes; }
     public GraphCell getStartNode() { return startNode; }
 }
