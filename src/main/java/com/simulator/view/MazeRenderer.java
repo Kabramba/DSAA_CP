@@ -35,6 +35,8 @@ public class MazeRenderer extends Canvas {
     private static final Color SEARCH_TRAIL = Color.web("#bb9af7", 0.10);
     private static final Color PATH_LINE_COLOR = Color.web("#7dcfff");
     private static final Color PATH_GLOW_COLOR = Color.web("#7dcfff", 0.15);
+    private static final Color MAZE_GOAL_COLOR = Color.web("#9ece6a");
+    private static final Color MAZE_GOAL_GLOW = Color.web("#9ece6a", 0.15);
 
     private double currentCellSize = 0;
     private double currentOffsetX = 0;
@@ -89,6 +91,7 @@ public class MazeRenderer extends Canvas {
         this.currentOffsetY = (canvasHeight - (logicalHeight * currentCellSize)) / 2.0;
 
         drawCells(gc, wallThickness);
+        drawMazeGoal(gc);
         drawSearchTrail(gc);
         drawPath(gc);
         drawTarget(gc);
@@ -126,6 +129,39 @@ public class MazeRenderer extends Canvas {
                 gc.strokeLine(px + currentCellSize - halfWall, py, px + currentCellSize - halfWall, py + currentCellSize);
             }
         }
+    }
+
+    private void drawMazeGoal(GraphicsContext gc) {
+        GraphCell goal = maze.getGoalNode();
+        if (goal == null) return;
+
+        double px = currentOffsetX + (goal.getX() * currentCellSize);
+        double py = currentOffsetY + (goal.getY() * currentCellSize);
+        double cx = px + currentCellSize / 2.0;
+        double cy = py + currentCellSize / 2.0;
+
+        gc.setFill(MAZE_GOAL_GLOW);
+        double glowSize = currentCellSize * 1.6;
+        gc.fillOval(cx - glowSize / 2, cy - glowSize / 2, glowSize, glowSize);
+
+        gc.setFill(MAZE_GOAL_COLOR.deriveColor(0, 1, 1, 0.2));
+        gc.fillRect(px + WALL_INSET, py + WALL_INSET,
+                currentCellSize - WALL_INSET * 2, currentCellSize - WALL_INSET * 2);
+
+        gc.setStroke(MAZE_GOAL_COLOR.deriveColor(0, 1, 1, 0.7));
+        gc.setLineWidth(1.5);
+        gc.setLineCap(StrokeLineCap.ROUND);
+        double inset = currentCellSize * 0.25;
+        gc.strokeRect(px + inset, py + inset, currentCellSize - inset * 2, currentCellSize - inset * 2);
+
+        gc.setFill(MAZE_GOAL_COLOR);
+        double flagW = currentCellSize * 0.08;
+        double flagH = currentCellSize * 0.45;
+        double flagX = cx - flagW / 2;
+        double flagY = cy - flagH / 2;
+        gc.fillRect(flagX, flagY, flagW, flagH);
+
+        gc.fillRect(flagX + flagW, flagY, currentCellSize * 0.18, currentCellSize * 0.15);
     }
 
     private void drawTarget(GraphicsContext gc) {

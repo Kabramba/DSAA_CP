@@ -5,16 +5,23 @@ import java.util.List;
 
 public class GraphMaze {
     private GraphCell startNode;
+    private GraphCell goalNode;
     private final List<GraphCell> allNodes;
 
     public GraphMaze() {
         this.allNodes = new ArrayList<>();
         buildIrregularMaze();
     }
-    // NEW Constructor for the I/O Loader
+
     public GraphMaze(List<GraphCell> nodes, GraphCell startNode) {
         this.allNodes = nodes;
         this.startNode = startNode;
+    }
+
+    public GraphMaze(List<GraphCell> nodes, GraphCell startNode, GraphCell goalNode) {
+        this.allNodes = nodes;
+        this.startNode = startNode;
+        this.goalNode = goalNode;
     }
 
     private void buildIrregularMaze() {
@@ -90,4 +97,6 @@ public class GraphMaze {
 
     public List<GraphCell> getAllNodes() { return allNodes; }
     public GraphCell getStartNode() { return startNode; }
+    public GraphCell getGoalNode() { return goalNode; }
+    public void setGoalNode(GraphCell goal) { this.goalNode = goal; }
 }

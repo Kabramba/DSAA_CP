@@ -13,13 +13,19 @@ import java.util.List;
 import java.util.Map;
 
 public class MazeFileManager {
-    /**
-     * Serializes a GraphMaize into the proprietary .mms text format.
-     */
-    public static void saveMaze(GraphMaze maize, String filePath) throws IOException {
+
+    public static void saveMaze(GraphMaze maze, String filePath) throws IOException {
         List<String> lines = new ArrayList<>();
 
-        for (GraphCell cell : maize.getAllNodes()) {
+        GraphCell start = maze.getStartNode();
+        GraphCell goal = maze.getGoalNode();
+        int startX = start != null ? start.getX() : 0;
+        int startY = start != null ? start.getY() : 0;
+        int goalX = goal != null ? goal.getX() : -1;
+        int goalY = goal != null ? goal.getY() : -1;
+        lines.add(String.format("META:%d,%d,%d,%d", startX, startY, goalX, goalY));
+
+        for (GraphCell cell : maze.getAllNodes()) {
             String line = String.format("%d,%d,%d,%d,%d,%d",
                     cell.getX(),
                     cell.getY(),
@@ -35,9 +41,6 @@ public class MazeFileManager {
         Files.write(path, lines);
     }
 
-    /**
-     * Parses a .mms file and reconstructs the GraphMaize and its topological references.
-     */
     public static GraphMaze loadMaze(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         List<String> lines = Files.readAllLines(path);
@@ -45,9 +48,22 @@ public class MazeFileManager {
         List<GraphCell> loadedNodes = new ArrayList<>();
         Map<String, GraphCell> coordinateMap = new HashMap<>();
 
-        // Phase 1: Parse data and instantiate discrete nodes
+        int startX = 0, startY = 0;
+        int goalX = -1, goalY = -1;
+        boolean hasMeta = false;
+
         for (String line : lines) {
             if (line.trim().isEmpty()) continue;
+
+            if (line.startsWith("META:")) {
+                String[] metaTokens = line.substring(5).split(",");
+                startX = Integer.parseInt(metaTokens[0]);
+                startY = Integer.parseInt(metaTokens[1]);
+                goalX = Integer.parseInt(metaTokens[2]);
+                goalY = Integer.parseInt(metaTokens[3]);
+                hasMeta = true;
+                continue;
+            }
 
             String[] tokens = line.split(",");
             int x = Integer.parseInt(tokens[0]);
@@ -63,18 +79,27 @@ public class MazeFileManager {
             coordinateMap.put(x + "," + y, cell);
         }
 
-        // Phase 2: Reconstruct topological graph references
         for (GraphCell cell : loadedNodes) {
             int x = cell.getX();
             int y = cell.getY();
-
             cell.northNode = coordinateMap.get(x + "," + (y - 1));
             cell.southNode = coordinateMap.get(x + "," + (y + 1));
             cell.eastNode  = coordinateMap.get((x + 1) + "," + y);
             cell.westNode  = coordinateMap.get((x - 1) + "," + y);
         }
 
-        GraphCell startNode = loadedNodes.isEmpty() ? null : loadedNodes.get(0);
-        return new GraphMaze(loadedNodes, startNode);
+        GraphCell startNode;
+        if (hasMeta) {
+            startNode = coordinateMap.get(startX + "," + startY);
+        } else {
+            startNode = loadedNodes.isEmpty() ? null : loadedNodes.get(0);
+        }
+
+        GraphCell goalNode = null;
+        if (goalX >= 0 && goalY >= 0) {
+            goalNode = coordinateMap.get(goalX + "," + goalY);
+        }
+
+        return new GraphMaze(loadedNodes, startNode, goalNode);
     }
 }

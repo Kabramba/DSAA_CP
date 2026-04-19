@@ -4,9 +4,12 @@ import com.simulator.algorithm.AStarPathfinder;
 import com.simulator.algorithm.BFSPathfinder;
 import com.simulator.algorithm.DijkstraPathfinder;
 import com.simulator.algorithm.ExplorationAlgorithm;
+import com.simulator.algorithm.FloodFillExplorer;
 import com.simulator.algorithm.LeftWallFollower;
 import com.simulator.algorithm.PathfindingAlgorithm;
+import com.simulator.algorithm.TremauxExplorer;
 import com.simulator.io.MazeFileManager;
+import com.simulator.io.MazeGenerator;
 import com.simulator.model.GraphCell;
 import com.simulator.model.GraphMaze;
 import com.simulator.model.Mouse;
@@ -42,8 +45,10 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         GraphMaze simMap;
-        try { simMap = MazeFileManager.loadMaze("massive_maze.mms"); }
-        catch (IOException e) { e.printStackTrace(); return; }
+        try {
+            MazeGenerator.generateAndSave(32, 32, "massive_maze.mms");
+            simMap = MazeFileManager.loadMaze("massive_maze.mms");
+        } catch (IOException e) { e.printStackTrace(); return; }
 
         GraphCell startTrue = simMap.getStartNode();
         GraphCell startKnown = new GraphCell(startTrue.getX(), startTrue.getY());
@@ -73,7 +78,7 @@ public class Main extends Application {
         exploreLabel.getStyleClass().add("speed-label");
 
         ComboBox<String> explorationSelector = new ComboBox<>();
-        explorationSelector.getItems().addAll("Manual Teleop", "Left Wall Follower");
+        explorationSelector.getItems().addAll("Manual Teleop", "Left Wall Follower", "Flood Fill", "Trémaux");
         explorationSelector.setValue("Manual Teleop");
         explorationSelector.getStyleClass().add("control-chip");
 
@@ -153,7 +158,10 @@ public class Main extends Application {
         Label stateStatus = new Label("State: Idle");
         stateStatus.getStyleClass().add("status-text");
 
-        Label mazeInfo = new Label(String.format("Maze: %dx%d", simMap.getLogicalWidth(), simMap.getLogicalHeight()));
+        String goalInfo = simMap.getGoalNode() != null
+                ? String.format("  |  Goal: (%d,%d)", simMap.getGoalNode().getX(), simMap.getGoalNode().getY())
+                : "";
+        Label mazeInfo = new Label(String.format("Maze: %dx%d%s", simMap.getLogicalWidth(), simMap.getLogicalHeight(), goalInfo));
         mazeInfo.getStyleClass().add("status-text");
 
         Region statusSpacer = new Region();
@@ -176,6 +184,17 @@ public class Main extends Application {
 
             if (activeExplorationAlgo != null) {
                 finished = activeExplorationAlgo.executeNextStep(mouse);
+
+                boolean targetReached = false;
+                if (activeExplorationAlgo instanceof FloodFillExplorer ff) {
+                    targetReached = ff.hasReachedTarget();
+                } else if (activeExplorationAlgo instanceof TremauxExplorer tr) {
+                    targetReached = tr.hasReachedTarget();
+                }
+
+                if (targetReached && !finished) {
+                    stateStatus.setText("State: Target Reached — Exploring");
+                }
             } else if (activePathfindingAlgo != null && virtualCursor != null) {
                 finished = activePathfindingAlgo.executeNextStep(virtualCursor, interpretMap);
             }
@@ -185,7 +204,14 @@ public class Main extends Application {
 
             if (finished) {
                 simulationClock.pause();
-                stateStatus.setText("State: Finished");
+
+                boolean targetReached = false;
+                if (activeExplorationAlgo instanceof FloodFillExplorer ff) {
+                    targetReached = ff.hasReachedTarget();
+                } else if (activeExplorationAlgo instanceof TremauxExplorer tr) {
+                    targetReached = tr.hasReachedTarget();
+                }
+                stateStatus.setText(targetReached ? "State: Target Reached" : "State: Exploration Complete");
                 btnToggle.setText("\u25B6  Play");
 
                 if (activePathfindingAlgo != null) {
@@ -220,9 +246,9 @@ public class Main extends Application {
                 manualTeleop = true;
                 activeExplorationAlgo = null;
                 hint.setText("Arrow keys to move  |  Click Memory map to set target");
-            } else if (selected.equals("Left Wall Follower")) {
+            } else {
                 manualTeleop = false;
-                activeExplorationAlgo = new LeftWallFollower();
+                activeExplorationAlgo = createExplorer(selected);
                 hint.setText("Press Play to run exploration  |  Click Memory map to set target");
             }
             modeStatus.setText("Exploration: " + selected);
@@ -279,8 +305,8 @@ public class Main extends Application {
             stepLabel.setText("Steps: 0");
 
             String explSelection = explorationSelector.getValue();
-            if (explSelection.equals("Left Wall Follower")) {
-                activeExplorationAlgo = new LeftWallFollower();
+            if (!explSelection.equals("Manual Teleop")) {
+                activeExplorationAlgo = createExplorer(explSelection);
             }
 
             interpretRenderer.setPath(null);
@@ -378,6 +404,15 @@ public class Main extends Application {
         primaryStage.setMinHeight(500);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private static ExplorationAlgorithm createExplorer(String name) {
+        return switch (name) {
+            case "Left Wall Follower" -> new LeftWallFollower();
+            case "Flood Fill" -> new FloodFillExplorer();
+            case "Trémaux" -> new TremauxExplorer();
+            default -> null;
+        };
     }
 
     private static PathfindingAlgorithm createPathfinder(String name) {
